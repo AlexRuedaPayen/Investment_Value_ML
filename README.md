@@ -1,10 +1,10 @@
-# Google Drive Uploader
+# Investment Value ML
 
-A brief description of what your project does.
+This project aims at uncovering reliable financial metrics that decompose a financial product between different degree of value, from Fundamental Investment Value to Speculative Value.
 
 ## Description
 
-A detailed description of your project, what it solves, and any key features. Mention any technologies or libraries you use. If there are any specific use cases or problems it addresses, include those details as well.
+<TBD>
 
 ## Table of Contents
 - [Installation](#installation)

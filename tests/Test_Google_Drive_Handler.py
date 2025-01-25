@@ -1,26 +1,29 @@
 import unittest
 from unittest.mock import MagicMock, patch
+from utils import DotDict
 from Google_API.Google_Drive_Handler import Google_Drive_Handler
+import pytest
 
 
-class Test_Google_Drive_Handler(unittest.TestCase):
+@pytest.mark.mock
+class TestGoogleDriveHandlerMock(unittest.TestCase):
     def setUp(self):
         """
-        Set up mock objects and a Google_Drive_Handler instance for testing.
+        Set up a mock Google_Drive_Handler instance for testing.
         """
         self.root_folder_id = "mock_root_folder_id"
         self.handler = Google_Drive_Handler(
             root_folder_id=self.root_folder_id,
             log_dir="./mock_logfiles",
-            token_path="./mock_secrets/token.json",
-            credentials_path="./mock_secrets/GoogleDriveAPI_token.json"
+            token_path="./secrets/Google_Drive/token.json",
+            credentials_path="./secrets/Google_Drive/creds.json"
         )
         self.handler.service = MagicMock()  # Mock the service object
 
     @patch("Google_API.Google_Drive_Handler.Google_Drive_Handler.authenticate")
     def test_authenticate(self, mock_authenticate):
         """
-        Test that the authenticate method is called without errors.
+        Test the authenticate method with mocks.
         """
         mock_authenticate.return_value = None  # Simulate successful authentication
         self.handler.authenticate()
@@ -28,7 +31,7 @@ class Test_Google_Drive_Handler(unittest.TestCase):
 
     def test_upload_file(self):
         """
-        Test the upload_file method.
+        Test the upload_file method with mocks.
         """
         # Mock the create method of the files API
         mock_file_create = self.handler.service.files().create
@@ -46,7 +49,7 @@ class Test_Google_Drive_Handler(unittest.TestCase):
 
     def test_list_files_by_pattern(self):
         """
-        Test the list_files_by_pattern method.
+        Test the list_files_by_pattern method with mocks.
         """
         # Mock the list method of the files API
         mock_files_list = self.handler.service.files().list
@@ -60,7 +63,7 @@ class Test_Google_Drive_Handler(unittest.TestCase):
     @patch("shutil.rmtree")
     def test_remove_folder(self, mock_rmtree):
         """
-        Test the remove_folder method.
+        Test the remove_folder method with mocks.
         """
         folder_path = "mock_folder"
         self.handler.remove_folder(folder_path)
@@ -68,28 +71,72 @@ class Test_Google_Drive_Handler(unittest.TestCase):
 
     def test_get_folder_id(self):
         """
-        Test the get_folder_id method.
+        Test the get_folder_id method with mocks.
         """
         # Mock API responses for country and exchange folders
         mock_files_list = self.handler.service.files().list
         mock_files_list.side_effect = [
-            {"files": [{"id": "mock_country_folder_id"}]},  # Country folder
-            {"files": [{"id": "mock_exchange_folder_id"}]}  # Exchange folder
+            {"files": [{"id": DotDict("secrets/Google_Drive/folder_ids.json").USA.NASDAQ}]},
+            {"files": [{"id": DotDict("secrets/Google_Drive/folder_ids.json").USA.NASDAQ}]},
         ]
 
         folder_id = self.handler.get_folder_id("USA", "NASDAQ")
-        self.assertEqual(folder_id, "mock_exchange_folder_id")
+        self.assertEqual(folder_id, DotDict("secrets/Google_Drive/folder_ids.json").USA.NASDAQ)
 
         # Verify queries made to the service.files().list method
         calls = mock_files_list.call_args_list
         self.assertIn("name='USA'", calls[0][1]["q"])
         self.assertIn("name='NASDAQ'", calls[1][1]["q"])
 
-    def tearDown(self):
+
+@pytest.mark.no_mock
+class TestGoogleDriveHandlerNoMock(unittest.TestCase):
+    def setUp(self):
         """
-        Clean up any test-specific resources (if necessary).
+        Set up a real Google_Drive_Handler instance for testing.
         """
-        pass
+        self.root_folder_id = "real_root_folder_id"
+        self.handler = Google_Drive_Handler(
+            root_folder_id=self.root_folder_id,
+            log_dir="./real_logfiles",
+            token_path="./secrets/Google_Drive/token.json",
+            credentials_path="./secrets/Google_Drive/creds.json"
+        )
+
+    def test_authenticate(self):
+        """
+        Test the authenticate method without mocks.
+        """
+        self.handler.authenticate()
+
+    def test_upload_file(self):
+        """
+        Test the upload_file method without mocks.
+        """
+        file_path = "real_file.txt"
+        folder_id = "real_folder_id"
+        self.handler.upload_file(file_path, folder_id)
+
+    def test_list_files_by_pattern(self):
+        """
+        Test the list_files_by_pattern method without mocks.
+        """
+        files = self.handler.list_files_by_pattern()
+        self.assertIsInstance(files, tuple)
+
+    def test_get_folder_id(self):
+        """
+        Test the get_folder_id method without mocks.
+        """
+        folder_id = self.handler.get_folder_id("USA", "NASDAQ")
+        self.assertIsInstance(folder_id, str)
+
+    def test_remove_folder(self):
+        """
+        Test the remove_folder method without mocks.
+        """
+        folder_path = "real_folder"
+        self.handler.remove_folder(folder_path)
 
 
 if __name__ == "__main__":

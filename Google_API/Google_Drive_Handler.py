@@ -10,7 +10,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 
 
 class Google_Drive_Handler:
-    def __init__(self, root_folder_id, log_dir="./logfiles", token_path="secrets/token.json", credentials_path="secrets/GoogleDriveAPI_token.json"):
+    def __init__(self, root_folder_id, log_dir="./logfiles", token_path="secrets/Google_Drive/token.json", credentials_path="secrets/Google_Drive/creds.json"):
        
         self.root_folder_id = root_folder_id
         self.token_path = token_path
@@ -37,14 +37,14 @@ class Google_Drive_Handler:
     def authenticate(self):
     
         if os.path.exists(self.token_path):
-            self.creds = Credentials.from_authorized_user_file(self.token_path)
+            self.creds = Credentials.from_authorized_user_file(self.token_path,['https://www.googleapis.com/auth/drive'])
 
         if not self.creds or not self.creds.valid:
             if self.creds and self.creds.expired and self.creds.refresh_token:
                 self.creds.refresh(Request())
             else:
                 flow = InstalledAppFlow.from_client_secrets_file(
-                    self.credentials_path, ['https://www.googleapis.com/auth/drive.file']
+                    self.credentials_path, ['https://www.googleapis.com/auth/drive']
                 )
                 self.creds = flow.run_local_server(port=0)
             with open(self.token_path, 'w') as token_file:

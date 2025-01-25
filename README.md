@@ -8,6 +8,7 @@ This project aims at uncovering reliable financial metrics that decompose a fina
 
 ## Table of Contents
 - [Installation](#installation)
+- [Set-Up](#setup)
 - [Usage](#usage)
 - [Tests](#tests)
 - [Contributing](#contributing)
@@ -37,6 +38,23 @@ Follow these steps to set up the project on your local machine:
     venv/Scripts/pip install -r requirements.txt 
     venv/Scripts/pip install -e  . #ensures that all test can be run
     ```
+## Set-Up
+
+1. Create your secrets folder
+
+    ```bash
+    mkdir secrets
+    mkdir secrets/Google_API
+    mkdir screts/EodHistoricalData
+    ```
+
+2. Create your Google Drive credentials
+    Procedure has been detailed [here](./subdoc/Google_Drive_Credentials.md)
+
+
+3. Copy the credential json file into secrets/Google_API/creds.json
+
+
 
 ## Usage
 

@@ -1,2 +1,21 @@
 secrets/
+
+# Ignore Python bytecode files
+*.pyc
+*.pyo
+__pycache__/
+
+# Ignore virtual environment folder
 venv/
+
+# Ignore egg-info folders
+*.egg-info/
+
+# Ignore other typical build artifacts
+build/
+dist/
+*.log
+
+#ignore pytest output
+.pytest_cache/
+mock_logfiles/

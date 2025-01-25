@@ -20,11 +20,15 @@ Follow these steps to set up the project on your local machine:
 
 1. Clone the repository:
 
-   git clone https://github.com/AlexRuedaPayen/Investment_Value_ML.git
+    ```bash
+    git clone https://github.com/AlexRuedaPayen/Investment_Value_ML.git
+    ```
 
 2. Navigate to the project directory:
 
+    ```bash
     cd Investment_Value_ML
+    ```
 
 3. Create and activate a virtual environment:
 
@@ -42,25 +46,32 @@ Here are some examples of how to use the project once it's installed:
 
 To start the project:
 
+    ```bash
     venv/Scripts/python main.py
+    ```
 
 ### Example 2: Using the Google Drive Handler in Python
 
-from google_drive_handler import GoogleDriveHandler
+    ```bash
+    from google_drive_handler import GoogleDriveHandler
 
-handler = GoogleDriveHandler()
-handler.authenticate()
-handler.upload_file("path/to/your/file")
+    handler = GoogleDriveHandler()
+    handler.authenticate()
+    handler.upload_file("path/to/your/file")
+    ```
 
 ### Tests
 To run tests for the project, use pytest:
 
+    ```bash
     pytest
+    ```
 
 You can also specify a particular test file or test case to run:
-
+    
+    ```bash
     pytest tests/test_google_drive_handler.py
-
+    ```
 
 ## Contributing
 
@@ -68,15 +79,21 @@ We welcome contributions! Please follow these steps to contribute:
 Fork the repository.
 Create a new branch for your feature or fix:
 
+    ```bash
     git checkout -b feature/your-feature
+    ```
 
 Make your changes and commit them:
 
+    ```bash
     git commit -m "Add new feature"
+    ```
 
 Push to your fork:
 
+    ```bash
     git push origin feature/your-feature
+    ```
 
 Create a pull request to merge your changes into the main branch.
 Ensure that all tests pass before submitting the PR.

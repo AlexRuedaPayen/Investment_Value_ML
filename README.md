@@ -36,7 +36,7 @@ Follow these steps to set up the project on your local machine:
     python3.10 -m venv venv
     venv/Scripts/pip install -r requirements.txt #Linus/MacOS
     venv\Scripts\pip install -r requirements.txt
-    ````
+    ```
 
 ## Usage
 

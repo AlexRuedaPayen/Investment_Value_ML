@@ -17,7 +17,7 @@ class Test_Google_Drive_Handler(unittest.TestCase):
         )
         self.handler.service = MagicMock()  # Mock the service object
 
-    @patch("google_api.google_drive_handler.Google_Drive_Handler.authenticate")
+    @patch("Google_API.Google_Drive_Handler.Google_Drive_Handler.authenticate")
     def test_authenticate(self, mock_authenticate):
         """
         Test that the authenticate method is called without errors.

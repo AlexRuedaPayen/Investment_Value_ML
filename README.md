@@ -34,8 +34,8 @@ Follow these steps to set up the project on your local machine:
 
     ```bash
     python3.10 -m venv venv
-    venv/Scripts/pip install -r requirements.txt #Linus/MacOS
-    venv\Scripts\pip install -r requirements.txt
+    venv/Scripts/pip install -r requirements.txt 
+    venv/Scripts/pip install -e  . #ensures that all test can be run
     ```
 
 ## Usage

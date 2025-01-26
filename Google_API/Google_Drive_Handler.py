@@ -7,6 +7,7 @@ from googleapiclient.http import MediaFileUpload
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.errors import HttpError
 
 
 class Google_Drive_Handler:
@@ -71,8 +72,12 @@ class Google_Drive_Handler:
         folder_id = folder_id or self.root_folder_id
         query = f"'{folder_id}' in parents"
         results = self.service.files().list(q=query).execute()
+
         files = [
-            (info['name'].split('.')[0]).split(file_pattern)
+            {
+                "name":(info['name'].split('.')[0]).split(file_pattern),
+                "id":info['id']
+            }
             for info in results.get('files', [])
         ]
         return tuple(files)
@@ -84,33 +89,58 @@ class Google_Drive_Handler:
         except Exception as e:
             logging.error(f"Error removing folder {folder_path}: {e}")
 
+    def remove_file_from_drive(self, file_id, local_path=None):
+        """
+        Removes a file from Google Drive and optionally from the local system.
+        """
+        try:
+            # Delete the file from Google Drive
+            self.service.files().delete(fileId=file_id).execute()
+            logging.info(f"File with ID {file_id} removed from Google Drive.")
+
+            # If a local path is provided, delete the file locally
+            if local_path and os.path.exists(local_path):
+                os.remove(local_path)
+                logging.info(f"Local file {local_path} removed.")
+        except HttpError as e:
+            logging.error(f"Error removing file from Drive: {e}")
+        except Exception as e:
+            logging.error(f"Error removing local file: {e}")
+
+
     def get_folder_id(self, country_code, exchange_code):
-        # Search for the country folder
-        country_query = (
-            f"name='{country_code}' and mimeType='application/vnd.google-apps.folder' "
-            f"and '{self.root_folder_id}' in parents"
-        )
-        country_folder = self.service.files().list(q=country_query, fields='files(id)').execute()
-        country_folder_id = (
-            country_folder.get('files', [])[0].get('id') if country_folder.get('files') else None
-        )
+        try:
+            # Search for the country folder
+            country_query = (
+                f"name='{country_code}' and mimeType='application/vnd.google-apps.folder' "
+                f"and '{self.root_folder_id}' in parents"
+            )
+            country_folder = self.service.files().list(q=country_query, fields='files(id)').execute()
+            country_folder_id = (
+                country_folder.get('files', [])[0].get('id') if country_folder.get('files') else None
+            )
 
-        if not country_folder_id:
-            logging.warning(f"Country folder '{country_code}' not found.")
+            if not country_folder_id:
+                logging.warning(f"Country folder '{country_code}' not found.")
+                return None
+
+            # Search for the exchange folder within the country folder
+            exchange_query = (
+                f"name='{exchange_code}' and mimeType='application/vnd.google-apps.folder' "
+                f"and '{country_folder_id}' in parents"
+            )
+            exchange_folder = self.service.files().list(q=exchange_query, fields='files(id)').execute()
+            exchange_folder_id = (
+                exchange_folder.get('files', [])[0].get('id') if exchange_folder.get('files') else None
+            )
+
+            if not exchange_folder_id:
+                logging.warning(f"Exchange folder '{exchange_code}' not found in '{country_code}'.")
+                return None
+
+            return exchange_folder_id
+        
+        except HttpError as err:
+            print(f"HttpError: {err}")
+            # You can also log the error for future reference.
             return None
-
-        # Search for the exchange folder within the country folder
-        exchange_query = (
-            f"name='{exchange_code}' and mimeType='application/vnd.google-apps.folder' "
-            f"and '{country_folder_id}' in parents"
-        )
-        exchange_folder = self.service.files().list(q=exchange_query, fields='files(id)').execute()
-        exchange_folder_id = (
-            exchange_folder.get('files', [])[0].get('id') if exchange_folder.get('files') else None
-        )
-
-        if not exchange_folder_id:
-            logging.warning(f"Exchange folder '{exchange_code}' not found in '{country_code}'.")
-            return None
-
-        return exchange_folder_id

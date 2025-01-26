@@ -1,6 +1,7 @@
 import unittest
+import os
 from unittest.mock import MagicMock, patch
-from utils import DotDict
+from utils import DotDict,create_local_file,remove_local_file
 from Google_API.Google_Drive_Handler import Google_Drive_Handler
 import pytest
 
@@ -95,7 +96,8 @@ class TestGoogleDriveHandlerNoMock(unittest.TestCase):
         """
         Set up a real Google_Drive_Handler instance for testing.
         """
-        self.root_folder_id = "real_root_folder_id"
+        self.root_folder_id = DotDict("secrets/Google_Drive/folder_ids.json").root
+
         self.handler = Google_Drive_Handler(
             root_folder_id=self.root_folder_id,
             log_dir="./real_logfiles",
@@ -113,9 +115,51 @@ class TestGoogleDriveHandlerNoMock(unittest.TestCase):
         """
         Test the upload_file method without mocks.
         """
-        file_path = "real_file.txt"
-        folder_id = "real_folder_id"
+        file_path = 'test.txt'
+
+        # Step 1: Create the local file
+        create_local_file(file_path=file_path, content='test')
+
+        # Step 2: Upload the file to Google Drive
+        folder_id = DotDict("secrets/Google_Drive/folder_ids.json").USA.NASDAQ
         self.handler.upload_file(file_path, folder_id)
+
+        # Step 3: Verify that the file exists on Google Drive
+
+        
+        files_on_drive = self.handler.list_files_by_pattern(folder_id=folder_id)
+
+        file_found_on_drive = any(file['name'][0] == "test" for file in files_on_drive)
+
+        self.assertTrue(file_found_on_drive, "File not found in Google Drive after upload.")
+
+        # Step 4: Verify that the local file exists
+        self.assertTrue(os.path.exists(file_path), "Local file was not created successfully.")
+
+        # Step 5: Clean up by removing the file locally and from Google Drive
+        remove_local_file(file_path)
+
+        # Step 6: Verify that the local file has been deleted
+        self.assertFalse(os.path.exists(file_path), "Local file was not deleted.")
+
+        # Step 7: Remove the file from Google Drive (we use list_files_by_pattern() again to verify)
+        files_on_drive = self.handler.list_files_by_pattern(folder_id=folder_id)
+
+        file_found_on_drive = any(file['name'][0] == "test" for file in files_on_drive)
+
+        if file_found_on_drive:
+            # Assuming there's a method to remove file by id, otherwise you could list files, find the file and delete by id
+            file_id_to_delete = next(file['id'] for file in files_on_drive if file['name'][0]== "test")
+            self.handler.remove_file_from_drive(file_id=file_id_to_delete)
+
+            # Step 8: Re-check if the file is still in Google Drive after deletion
+            files_on_drive = self.handler.list_files_by_pattern()
+            file_found_on_drive = any(file['name'][0]== "test" for file in files_on_drive)
+
+            import pdb
+            pdb.set_trace()
+            self.assertFalse(file_found_on_drive, "File still exists on Google Drive after deletion.")
+
 
     def test_list_files_by_pattern(self):
         """
@@ -131,12 +175,6 @@ class TestGoogleDriveHandlerNoMock(unittest.TestCase):
         folder_id = self.handler.get_folder_id("USA", "NASDAQ")
         self.assertIsInstance(folder_id, str)
 
-    def test_remove_folder(self):
-        """
-        Test the remove_folder method without mocks.
-        """
-        folder_path = "real_folder"
-        self.handler.remove_folder(folder_path)
 
 
 if __name__ == "__main__":

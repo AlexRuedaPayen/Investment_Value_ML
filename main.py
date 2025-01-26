@@ -19,7 +19,7 @@ def main():
 
     # Only initialize the folder structure if not already done
     if not check_if_initialized():
-        initialize_google_drive_folders(handler.service, countries_markets, root_folder_id=DotDict(path="secrets.Google_Drive.folder_ids").root)
+        initialize_google_drive_folders(handler.service, country_markets, root_folder_id=DotDict(path="secrets.Google_Drive.folder_ids").root)
         mark_as_initialized()
 
     # Proceed with other operations (e.g., upload, download, etc.)

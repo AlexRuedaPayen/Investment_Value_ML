@@ -30,11 +30,11 @@ class TestPriceDataProcessorMock(unittest.TestCase):
             ('2022-01-02', [{'close': 150,'adjusted_close': 100, 'volume': 15}, {'close': 250,'adjusted_close': 200, 'volume': 25}, {'close': 350, 'adjusted_close': 300,'volume': 35}])
         ]
         expected_df = pd.DataFrame({
-            'Equity___Low__close': [100, 150],
-            'Equity___Low__adjusted_close': [100, 150],
-            'Equity___Median__close': [200, 150],
-            'Equity___Median__adjusted_close': [200, 100],
-            'Equity___Total__Volume': [60, 75]
+            'Equity___Low__close': [100., 150.],
+            'Equity___Low__adjusted_close': [100., 100.],
+            'Equity___Median__close': [200., 150.],
+            'Equity___Median__adjusted_close': [200., 100.],
+            'Equity___Total__Volume': [60., 75.]
         }, index=pd.to_datetime(['2022-01-01', '2022-01-02']))
 
         result_df = self.processor.process_prices(price_data, [('2022-01-01', price_data[0][1]), ('2022-01-02', price_data[1][1])])

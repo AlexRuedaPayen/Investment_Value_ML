@@ -39,25 +39,31 @@ class Price_Data_Processor:
         
         return float(sorted_values[ind])
 
+   
     def process_prices(self, price_data, date_pairs):
         df = pd.DataFrame(index=[pd.to_datetime(pair[0]) for pair in date_pairs], columns=[
             'Equity___Low__close', 'Equity___Low__adjusted_close',
             'Equity___Median__close', 'Equity___Median__adjusted_close',
             'Equity___Total__Volume'
-        ])
-
+        ]).astype({
+            'Equity___Low__close': 'float64', 
+            'Equity___Low__adjusted_close': 'float64', 
+            'Equity___Median__close': 'float64', 
+            'Equity___Median__adjusted_close': 'float64', 
+            'Equity___Total__Volume': 'float64'
+        })
 
         for date_start, prices in date_pairs:
             if prices:
-                if True:
+                try:
                     total_volume = sum(price['volume'] for price in prices)
-                    df.at[date_start, 'Equity___Low__close'] = self.get_percentile_on_volume_weight(prices, total_volume, 'close', 25)
-                    df.at[date_start, 'Equity___Low__adjusted_close'] = self.get_percentile_on_volume_weight(prices, total_volume, 'adjusted_close', 25)
-                    df.at[date_start, 'Equity___Median__close'] = self.get_percentile_on_volume_weight(prices, total_volume, 'close', 50)
-                    df.at[date_start, 'Equity___Median__adjusted_close'] = self.get_percentile_on_volume_weight(prices, total_volume, 'adjusted_close', 50)
-                    df.at[date_start, 'Equity___Total__Volume'] = int(total_volume)
+                    df.at[date_start, 'Equity___Low__close'] = float(self.get_percentile_on_volume_weight(prices, total_volume, 'close', 25))
+                    df.at[date_start, 'Equity___Low__adjusted_close'] = float(self.get_percentile_on_volume_weight(prices, total_volume, 'adjusted_close', 25))
+                    df.at[date_start, 'Equity___Median__close'] = float(self.get_percentile_on_volume_weight(prices, total_volume, 'close', 50))
+                    df.at[date_start, 'Equity___Median__adjusted_close'] = float(self.get_percentile_on_volume_weight(prices, total_volume, 'adjusted_close', 50))
+                    df.at[date_start, 'Equity___Total__Volume'] = float(total_volume)
 
-                else:
+                except:
                     logging.warning(f'Failure calculating price distribution for {date_start}')
             else:
                 logging.warning(f'No data available for {date_start}')

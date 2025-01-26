@@ -1,4 +1,4 @@
-countries_markets = {
+country_markets = {
     'France': ['PA'], 
     'Germany': ['BE', 'HM','HA','DU','STU','MU','XETRA'],
     'Norway':   ['OL'],

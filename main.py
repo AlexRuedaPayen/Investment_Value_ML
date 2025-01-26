@@ -2,6 +2,8 @@ from Google_API.Google_Drive_Handler import Google_Drive_Handler
 from Google_API.Google_Drive_Handler import initialize_google_drive_folders, check_if_initialized, mark_as_initialized
 from utils import DotDict
 
+from data.country_markets import country_markets
+
 def main():
 
 
@@ -13,10 +15,7 @@ def main():
         credentials_path="./secrets/Google_Drive/creds.json"
     )
 
-    # Define the folder structure
-    countries_markets = {
-        'USA': ['NASDAQ']  # Add more countries and markets as needed
-    }
+    
 
     # Only initialize the folder structure if not already done
     if not check_if_initialized():

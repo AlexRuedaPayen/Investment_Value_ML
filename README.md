@@ -54,7 +54,15 @@ Follow these steps to set up the project on your local machine:
 
 3. Copy the credential json file into secrets/Google_API/creds.json
 
+4. To initialize your file system, create secrets/Google_API/folder_ids.json
 
+5. Add a key 'root' and a value corresponding to the Root of the folder where you want to store the historical data.
+    The root is a Google Drive Folder ID, which is the  \<VALUEID\> in https://drive.google.com/drive/u/0/folders/\<VALUEID\> (something like a a 30 character string with digits, letters and special characters)
+
+6. Run 
+    ```bash
+    venv/Scripts/python main.py
+    ```
 
 ## Usage
 

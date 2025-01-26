@@ -1,5 +1,5 @@
 from Google_API.Google_Drive_Handler import Google_Drive_Handler
-from Google_API.Google_Drive_Handler import initialize_google_drive_folders, check_if_initialized, mark_as_initialized
+from Google_API.Google_Drive_Initizalizer import Google_Drive_Initizalizer
 from utils import DotDict
 
 from data.country_markets import country_markets

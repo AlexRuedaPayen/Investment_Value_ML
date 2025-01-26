@@ -1,0 +1,26 @@
+country_markets = {
+    'France': ['PA'], 
+    'Germany': ['BE', 'HM','HA','DU','STU','MU','XETRA'],
+    'Norway':   ['OL'],
+    'UK': ['LSE','IL'],
+    'Netherlands':['AS'],
+    'USA':['US'],
+    'Austria':['VI'],
+    'Portugal':['LS'],
+    'Spain':['MC'],
+    'Italy':[],
+    'Ireland':['IR'],
+    'Poland':['PL'],
+    'Czech Republic':['PR'],
+    'Slovakia':[],
+    'Finland':['HE'],
+    'Sweden':['ST'],
+    'Greece':['AT'],
+    'Croatia':['ZSE'],
+    'Hungary':['BUD'],
+    'Romania':['RO'],
+    'Canada':['TO','NEO','V'],
+    'Australia':['AU'],
+    'USA':['NASDAQ']#['NYSE','NASDAQ']
+
+}

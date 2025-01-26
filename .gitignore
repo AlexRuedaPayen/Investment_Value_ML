@@ -19,3 +19,6 @@ dist/
 #ignore pytest output
 .pytest_cache/
 mock_logfiles/
+
+# cofig init (personnal)
+Google_API/config_init.json

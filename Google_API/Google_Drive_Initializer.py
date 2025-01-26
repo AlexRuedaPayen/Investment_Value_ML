@@ -6,7 +6,7 @@ class Google_Drive_Initializer:
     A class to handle Google Drive folder structure initialization.
     """
 
-    def __init__(self, service, config_path='config.json'):
+    def __init__(self, service, config_path='./Google_API/config_init.json'):
         """
         Initialize the GoogleDriveInitializer.
 

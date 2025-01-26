@@ -21,4 +21,4 @@ dist/
 mock_logfiles/
 
 # cofig init (personnal)
-./Google_API/config_init.json
+Google_API/config_init.json

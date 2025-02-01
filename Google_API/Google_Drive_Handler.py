@@ -9,6 +9,10 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.errors import HttpError
 
+import io
+import pandas as pd
+from googleapiclient.http import MediaIoBaseDownload
+
 
 class Google_Drive_Handler:
     def __init__(self, root_folder_id, log_dir="./logfiles", token_path="secrets/Google_Drive/token.json", credentials_path="secrets/Google_Drive/creds.json"):
@@ -108,6 +112,98 @@ class Google_Drive_Handler:
             logging.error(f"Error removing local file: {e}")
 
 
+
+    def list_folders(self, parent_id):
+        """
+        List all folders inside a given parent folder.
+
+        Args:
+            parent_id (str): ID of the parent folder.
+
+        Returns:
+            dict: A dictionary {folder_name -> folder_id}.
+        """
+        try:
+            query = f"'{parent_id}' in parents and mimeType='application/vnd.google-apps.folder'"
+            results = self.service.files().list(q=query, fields="files(id, name)").execute()
+            return {f["name"]: f["id"] for f in results.get("files", [])}
+        except HttpError as err:
+            logging.error(f"Error listing folders: {err}")
+            return {}
+
+
+    def list_csv_files(self, folder_id):
+        """
+        List all CSV files inside a given folder.
+
+        Args:
+            folder_id (str): ID of the folder.
+
+        Returns:
+            dict: A dictionary {file_name -> file_id}.
+        """
+        try:
+            query = f"'{folder_id}' in parents and mimeType='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'"
+            results = self.service.files().list(q=query, fields="files(id, name)").execute()
+
+
+            return {f["name"]: f["id"] for f in results.get("files", [])}
+        except HttpError as err:
+            logging.error(f"Error listing CSV files: {err}")
+            return {}
+
+
+
+
+
+    def download_xlsx_as_dataframe(self, file_id):
+        """
+        Download an Excel (.xlsx) file from Google Drive and convert it to a pandas DataFrame,
+        ensuring that no 'Unnamed: 0' columns are present and the index is properly set.
+        Also, the Date column is converted into fiscal quarters like Q4 2024, Q3 2024, etc.
+
+        Args:
+            file_id (str): The Google Drive file ID.
+
+        Returns:
+            pd.DataFrame: The downloaded Excel file as a DataFrame with proper index and quarters.
+        """
+        try:
+            # Request to get the file from Google Drive
+            request = self.service.files().get_media(fileId=file_id)
+            file_stream = io.BytesIO()
+            
+            # Download the file
+            downloader = MediaIoBaseDownload(file_stream, request)
+            done = False
+            while not done:
+                _, done = downloader.next_chunk()
+
+            file_stream.seek(0)  # Reset file stream position to the start
+            
+            # Read the Excel file into a DataFrame
+            df = pd.read_excel(file_stream, engine='openpyxl', index_col=0)  # Use index_col=0 to set the first column as the index
+            
+            # Remove any columns that are named "Unnamed" (usually the default index column from CSVs)
+            df = df.loc[:, ~df.columns.str.contains('^Unnamed')]  # Remove columns starting with 'Unnamed'
+            
+            # Ensure that the index column is set properly
+            df.index = pd.to_datetime(df.index)  # Convert the index to datetime if it isn't already
+            
+            # Convert the index (dates) to fiscal quarters like Q4 2024, Q3 2024, etc.
+            df['Fiscal Quarter'] = df.index.to_period('Q').astype(str)  # Convert datetime index to fiscal quarters
+
+            # Set the fiscal quarter as the new index
+            df.set_index('Fiscal Quarter', inplace=True)
+            
+            # Sort the DataFrame by the fiscal quarter index
+            df = df.sort_index()
+            
+            return df
+        except HttpError as err:
+            logging.error(f"Error downloading Excel file {file_id}: {err}")
+            return pd.DataFrame()  # Return an empty DataFrame if download fails
+
     def get_folder_id(self, country_code, exchange_code):
         try:
             # Search for the country folder
@@ -119,6 +215,7 @@ class Google_Drive_Handler:
             country_folder_id = (
                 country_folder.get('files', [])[0].get('id') if country_folder.get('files') else None
             )
+
 
             if not country_folder_id:
                 logging.warning(f"Country folder '{country_code}' not found.")

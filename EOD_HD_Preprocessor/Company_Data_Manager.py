@@ -45,7 +45,7 @@ class CompanyDataManager:
         df_financials.index = pd.to_datetime(df_financials.index)
         df_prices.index = pd.to_datetime(df_prices.index)
         merged_df = pd.merge(df_financials, df_prices, left_index=True, right_index=True, how='inner')
-        merged_df.index = [date.strftime("%Y-%m-%d") for date in merged_df.index]
+        merged_df.index = pd.to_datetime(merged_df.index)  
         return merged_df
 
     def save_data(self, df, ticker_name, ticker_symbol):

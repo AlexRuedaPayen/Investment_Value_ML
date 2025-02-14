@@ -22,3 +22,6 @@ mock_logfiles/
 
 # cofig init (personnal)
 Google_API/config_init.json
+
+# used for debugs
+data/tmpr

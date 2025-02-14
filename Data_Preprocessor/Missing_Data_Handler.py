@@ -80,14 +80,10 @@ def preprocesser_for_EncoderDecoder(X_train, Y_train):
         """ Computes pct_change while avoiding division by zero and infinite values. """
         df = df.copy()
 
-        import pdb
-        pdb.set_trace()
 
         df.replace(0, epsilon, inplace=True)  # Prevent division by zero
         pct_df = df.pct_change()
-        pct_df.replace([np.inf, -np.inf], np.nan, inplace=True)  # Remove infinities
-        pct_df = pct_df[(pct_df != -1).all(axis=1)]  # Remove rows containing -1
-        return pct_df.dropna()  # Drop NaNs
+        return pct_df
 
     X_train_pct = safe_pct_change(X_train[equity_cols_X_train])
     Y_train_pct = safe_pct_change(Y_train[equity_cols_Y_train])
@@ -99,7 +95,6 @@ def preprocesser_for_EncoderDecoder(X_train, Y_train):
     mask = mask.loc[common_indices]
 
     # Step 7: Normalize Data using StandardScaler
-
 
     import pdb
     pdb.set_trace()
@@ -239,6 +234,13 @@ fetch_and_store_all_data({key:value for key,value in country_markets.items() if 
 
 X_train, Y_train = prepare_training_set(data_fetcher)
 
+
+X_train.to_csv('data/tmpr/X_train.csv')
+Y_train.to_csv('data/tmpr/Y_train.csv')
+
+
+X_train=pd.read('data/tmpr/X_train.csv')
+Y_train=pd.read('data/tmpr/Y_train.csv')
 
 # Check the shape of the training data
 print(f"Input shape: {X_train.shape}")
